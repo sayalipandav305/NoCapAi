@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detection Result - Deepfake Detector</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: background 0.6s ease-in-out;
+      backdrop-filter: blur(2px);
+    }
+
+    .container {
+      margin-top: 80px;
+    }
+
+    .card {
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      background-color: white;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    .preview-img, .preview-video {
+      max-width: 100%;
+      height: auto;
+      margin-top: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .alert {
+      border-radius: 12px;
+      font-size: 1.2rem;
+      padding: 1.2rem;
+    }
+
+    .btn-secondary {
+      border-radius: 12px;
+    }
+
+    .header-title {
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .meta-info {
+      font-size: 1rem;
+      color: #334155;
+      background-color: #f8fafc;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    footer {
+      margin-top: 60px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+
+    @keyframes popInShrink {
+      0% {
+        transform: scale(0.3);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .animated-result {
+      animation: popInShrink 0.6s ease-out;
+    }
+
+    body.real-bg {
+      background: linear-gradient(to right, rgba(209, 250, 229, 0.7), rgba(167, 243, 208, 0.7));
+    }
+
+    body.fake-bg {
+      background: linear-gradient(to right, rgba(254, 226, 226, 0.7), rgba(254, 202, 202, 0.7));
+    }
+    
+  </style>
+</head>
+<body class="{% if prediction %}{% if 'Fake' in prediction %}fake-bg{% else %}real-bg{% endif %}{% endif %}">
+    {% if prediction and 'Fake' in prediction %}
+    <div class="fake-warning-overlay">
+      <span class="fake-text"></span>
+    </div>
+  {% endif %}
+  
+  <div class="container">
+    <div class="text-center mb-5">
+      <h1 class="header-title">Detection Result</h1>
+      <p class="subtext">Below is the analysis of your uploaded media.</p>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-md-7">
+        <div class="card p-5">
+
+          {% if file_url %}
+            <div class="text-center">
+              {% if file_url.endswith('.mp4') %}
+                <video class="preview-video" controls>
+                  <source src="{{ file_url }}" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+              {% else %}
+                <img src="{{ file_url }}" class="preview-img" alt="Uploaded Media">
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if prediction %}
+            <div class="alert mt-4 text-center animated-result {{ 'alert-danger' if 'Fake' in prediction else 'alert-success' }}">
+              <strong>Detection Result:</strong> {{ prediction }}
+            </div>
+          {% endif %}
+
+          {% if confidence %}
+            <div class="meta-info">
+              <strong>Confidence Score:</strong> {{ '%.2f'|format(confidence * 100) }}%
+            </div>
+          {% endif %}
+
+          {% if reason %}
+            <div class="meta-info">
+              <strong>Reason:</strong> {{ reason }}
+            </div>
+          {% endif %}
+
+          <div class="mt-4 text-center">
+            <a href="{{ url_for('index') }}" class="btn" style="background-color: #4f46e5; color: white;">Analyze Another Media</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="mt-5">
+    &copy; 2025 Deepfake Detector | Built with ❤️ by CodeStorm
+  </footer>
+
+</body>
+</html>
